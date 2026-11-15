@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Diani Beach Hospital",
+    "town": "Diani",
+    "lat": -4.2795,
+    "lng": 39.5942,
+    "phone": "+254 20 221 1234",
+    "specialties": ["General", "Emergency", "Maternity", "Pediatrics"],
+    "is24hr": true,
+    "acceptsNHIF": true,
+    "rating": 4.6
+  },
+  {
+    "id": 2,
+    "name": "Msambweni County Referral Hospital",
+    "town": "Msambweni",
+    "lat": -4.4715,
+    "lng": 39.4792,
+    "phone": "+254 40 320 1234",
+    "specialties": ["General", "Emergency", "Surgery", "Maternity"],
+    "is24hr": true,
+    "acceptsNHIF": true,
+    "rating": 4.1
+  },
+  {
+    "id": 3,
+    "name": "Ukunda Medical Clinic",
+    "town": "Ukunda",
+    "lat": -4.2935,
+    "lng": 39.5632,
+    "phone": "+254 722 123456",
+    "specialties": ["General", "Pharmacy", "Lab"],
+    "is24hr": false,
+    "acceptsNHIF": false,
+    "rating": 4.0
+  },
+  {
+    "id": 4,
+    "name": "Kwale Sub-County Hospital",
+    "town": "Kwale",
+    "lat": -4.4236,
+    "lng": 39.4526,
+    "phone": "+254 40 320 5678",
+    "specialties": ["General", "Maternity", "HIV Care"],
+    "is24hr": true,
+    "acceptsNHIF": true,
+    "rating": 3.9
+  }
+]

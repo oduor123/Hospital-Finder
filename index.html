@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Finder - Coast, Kenya</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>🏥 Find Nearest Hospital</h1>
+    <p>Location-based recommendation for Ukunda, Diani & Kwale</p>
+  </header>
+
+  <main>
+    <div class="controls">
+      <button id="locateBtn">📍 Use My Location</button>
+      <select id="specialtyFilter">
+        <option value="All">All Specialties</option>
+        <option value="Emergency">Emergency</option>
+        <option value="Maternity">Maternity</option>
+        <option value="Pediatrics">Pediatrics</option>
+        <option value="Surgery">Surgery</option>
+        <option value="General">General</option>
+      </select>
+      <label><input type="checkbox" id="nhifFilter"> NHIF Only</label>
+      <label><input type="checkbox" id="open24Filter"> 24hr Only</label>
+    </div>
+
+    <p id="status">Click "Use My Location" to find hospitals near you.</p>
+    <div id="results"></div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
