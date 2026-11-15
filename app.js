@@ -1,27 +1,25 @@
-// 1. Haversine Formula - Calculates real distance in KM
 function getDistanceKm(lat1, lon1, lat2, lon2) {
-  const R = 6371; // Earth radius in KM
+  const R = 6371;
   const dLat = (lat2 - lat1) * Math.PI / 180;
   const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
+function getScore(h, d) { return h.rating * 10 - (d * 2); }
 
-// 2. Recommendation Score - Distance matters most, then rating
-function getScore(hospital, distanceKm) {
-  // Lower distance = better. Higher rating = better.
-  // We penalize distance heavily: 10 points per KM
-  return hospital.rating * 10 - (distanceKm * 2);
-}
+// Symptom -> Specialty mapping
+const SYMPTOM_MAP = {
+  "pregnant": "Maternity", "pregnancy": "Maternity", "labour": "Maternity", "delivery": "Maternity",
+  "fever": "General", "headache": "General", "cough": "General", "malaria": "General",
+  "child": "Pediatrics", "baby": "Pediatrics", "kid": "Pediatrics",
+  "accident": "Emergency", "bleeding": "Emergency", "emergency": "Emergency", "injury": "Emergency",
+  "cancer": "Oncology", "heart": "Cardiology", "chest pain": "Cardiology",
+  "operation": "Surgery", "surgery": "Surgery", "appendix": "Surgery"
+};
 
 let allHospitals = [];
-let userLocation = null; // {lat, lng}
-
-// Default location: Ukunda town center, if user denies GPS
-const DEFAULT_LOCATION = { lat: -4.2935, lng: 39.5632, name: "Ukunda (Default)" };
+let userLocation = null;
+const DEFAULT_LOCATION = { lat: -4.2935, lng: 39.5632 };
 
 async function loadHospitals() {
   const res = await fetch('hospitals.json');
@@ -30,76 +28,74 @@ async function loadHospitals() {
 }
 
 function renderHospitals() {
-  const specialty = document.getElementById('specialtyFilter').value;
+  const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+  const county = document.getElementById('countyFilter').value;
+  let specialty = document.getElementById('specialtyFilter').value;
   const nhifOnly = document.getElementById('nhifFilter').checked;
   const open24Only = document.getElementById('open24Filter').checked;
   const container = document.getElementById('results');
 
+  // Auto-detect specialty from symptom search
+  if (searchText) {
+    for (let key in SYMPTOM_MAP) {
+      if (searchText.includes(key)) { specialty = SYMPTOM_MAP[key]; break; }
+    }
+  }
+
   let filtered = allHospitals.filter(h => {
+    if (county !== 'All' && h.county !== county) return false;
     if (specialty !== 'All' && !h.specialties.includes(specialty)) return false;
     if (nhifOnly && !h.acceptsNHIF) return false;
     if (open24Only && !h.is24hr) return false;
+    if (searchText) {
+      const inSymptomMap = Object.keys(SYMPTOM_MAP).some(k => searchText.includes(k));
+      // If it's a symptom, we already filtered by specialty, don't filter by text
+      if (!inSymptomMap) {
+        const hay = (h.name + " " + h.town + " " + h.county).toLowerCase();
+        if (!hay.includes(searchText)) return false;
+      }
+    }
     return true;
   });
 
-  // Add distance + score to each hospital
   const loc = userLocation || DEFAULT_LOCATION;
   filtered = filtered.map(h => {
     const distance = getDistanceKm(loc.lat, loc.lng, h.lat, h.lng);
     return { ...h, distance, score: getScore(h, distance) };
   });
 
-  // Sort: Best score first = Recommended
+  // If user searched a specific county/town, sort by distance from that place's center.
+  // If user used GPS, sort by score. For simplicity, sort by score always.
   filtered.sort((a, b) => b.score - a.score);
 
   if (filtered.length === 0) {
-    container.innerHTML = "<p>No hospital matches your filter.</p>";
+    container.innerHTML = "<p>No hospital found. Try another town or clear filters.</p>";
     return;
   }
 
-  container.innerHTML = filtered.map((h, index) => `
-    <div class="card ${index === 0 ? 'best' : ''}">
-      <h3>${index === 0 ? '⭐ RECOMMENDED - ' : ''}${h.name}</h3>
-      <p>📍 ${h.town} • ${h.distance.toFixed(1)} km away • ⭐ ${h.rating}/5</p>
-      <p>${h.specialties.map(s => `<span class="badge">${s}</span>`).join('')}</p>
-      <p>${h.is24hr ? '🟢 Open 24hrs' : '🔴 Not 24hrs'} • ${h.acceptsNHIF ? '✅ NHIF Accepted' : '❌ No NHIF'}</p>
-      <p>
-        <a href="tel:${h.phone}">📞 Call ${h.phone}</a> &nbsp; | &nbsp;
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank">🧭 Get Directions</a>
-      </p>
+  container.innerHTML = `<p><b>${filtered.length} hospitals found nationwide</b> ${specialty !== 'All' ? `• Specialty: ${specialty}` : ''}</p>` + filtered.map((h, i) => `
+    <div class="card ${i===0?'best':''}">
+      <h3>${i===0?'⭐ RECOMMENDED - ':''}${h.name}</h3>
+      <p>📍 ${h.town}, ${h.county} County • ${h.distance.toFixed(1)} km from you • ⭐ ${h.rating}/5</p>
+      <p>${h.specialties.map(s=>`<span class="badge">${s}</span>`).join('')}</p>
+      <p>${h.is24hr?'🟢 Open 24hrs':'🔴 Not 24hrs'} • ${h.acceptsNHIF?'✅ NHIF':'❌ No NHIF'}</p>
+      <p><a href="tel:${h.phone}">📞 Call ${h.phone}</a> &nbsp;|&nbsp; <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank">🧭 Get Directions</a></p>
     </div>
   `).join('');
 }
 
-// 3. Geolocation - Get real user location
 document.getElementById('locateBtn').addEventListener('click', () => {
   const status = document.getElementById('status');
   status.textContent = "Getting your location...";
-
-  if (!navigator.geolocation) {
-    status.textContent = "Geolocation not supported. Using Ukunda as default.";
-    userLocation = DEFAULT_LOCATION;
-    renderHospitals();
-    return;
-  }
-
+  if (!navigator.geolocation) { userLocation = DEFAULT_LOCATION; renderHospitals(); return; }
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-      status.textContent = `Your location: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)} - Showing nearest hospitals`;
-      renderHospitals();
-    },
-    (err) => {
-      status.textContent = "Location denied. Using Ukunda town as default location.";
-      userLocation = DEFAULT_LOCATION;
-      renderHospitals();
-    }
+    pos => { userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude }; status.textContent = `Your location: ${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)} - Showing nearest nationwide`; renderHospitals(); },
+    () => { status.textContent = "Location denied. Using Ukunda as default."; userLocation = DEFAULT_LOCATION; renderHospitals(); }
   );
 });
 
-// Filters re-render instantly
-['specialtyFilter', 'nhifFilter', 'open24Filter'].forEach(id => {
+['searchInput','countyFilter','specialtyFilter','nhifFilter','open24Filter'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderHospitals);
   document.getElementById(id).addEventListener('change', renderHospitals);
 });
-
 loadHospitals();
