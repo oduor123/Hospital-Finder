@@ -3,50 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hospital Finder - Kenya Nationwide</title>
+  <title>Hospital Finder - Find Nearest Hospital in Kenya</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
-    <h1>🏥 Find Nearest Hospital - Kenya</h1>
-    <p>Nationwide recommendation • All 47 Counties • Ukunda to Garissa</p>
+    <h1>🏥 Hospital Finder Kenya</h1>
+    <p>Find the nearest hospital in seconds • Nationwide • Free</p>
+    <div class="hero-stats">
+      <span>📍 20+ Hospitals</span>
+      <span>🗺️ 14 Counties</span>
+      <span>⭐ Rated & Verified</span>
+    </div>
   </header>
   <main>
     <div class="controls">
       <input type="text" id="searchInput" placeholder="🔍 Search town, county, hospital or symptom e.g. Nairobi, pregnant, fever...">
-      <button id="locateBtn">📍 Use My Location</button>
-      <select id="countyFilter">
-        <option value="All">All Counties</option>
-        <option value="Kwale">Kwale</option>
-        <option value="Mombasa">Mombasa</option>
-        <option value="Nairobi">Nairobi</option>
-        <option value="Kisumu">Kisumu</option>
-        <option value="Nakuru">Nakuru</option>
-        <option value="Uasin Gishu">Uasin Gishu</option>
-        <option value="Garissa">Garissa</option>
-        <option value="Kakamega">Kakamega</option>
-        <option value="Nyeri">Nyeri</option>
-        <option value="Meru">Meru</option>
-        <option value="Machakos">Machakos</option>
-        <option value="Kisii">Kisii</option>
-        <option value="Kiambu">Kiambu</option>
-        <option value="Kilifi">Kilifi</option>
-      </select>
-      <select id="specialtyFilter">
-        <option value="All">All Specialties</option>
-        <option value="Emergency">Emergency</option>
-        <option value="Maternity">Maternity</option>
-        <option value="Pediatrics">Pediatrics</option>
-        <option value="Surgery">Surgery</option>
-        <option value="General">General</option>
-        <option value="Oncology">Oncology</option>
-        <option value="Cardiology">Cardiology</option>
-      </select>
-      <label><input type="checkbox" id="nhifFilter"> NHIF Only</label>
-      <label><input type="checkbox" id="open24Filter"> 24hr Only</label>
+      <div class="quick-chips">
+        <span class="chip" onclick="quickSearch('pregnant')">🤰 Pregnant</span>
+        <span class="chip" onclick="quickSearch('fever')">🤒 Fever</span>
+        <span class="chip" onclick="quickSearch('accident')">🚑 Accident</span>
+        <span class="chip" onclick="quickSearch('child')">👶 Child Sick</span>
+        <span class="chip" onclick="quickSearch('Nairobi')">📍 Nairobi</span>
+        <span class="chip" onclick="quickSearch('Diani')">🏖️ Diani</span>
+      </div>
+      <div class="filters-row">
+        <button id="locateBtn">📍 Use My Location</button>
+        <select id="countyFilter">
+          <option value="All">All Counties</option>
+          <option value="Kwale">Kwale</option>
+          <option value="Mombasa">Mombasa</option>
+          <option value="Nairobi">Nairobi</option>
+          <option value="Kisumu">Kisumu</option>
+          <option value="Nakuru">Nakuru</option>
+          <option value="Uasin Gishu">Uasin Gishu</option>
+          <option value="Garissa">Garissa</option>
+          <option value="Kakamega">Kakamega</option>
+          <option value="Nyeri">Nyeri</option>
+          <option value="Meru">Meru</option>
+          <option value="Machakos">Machakos</option>
+          <option value="Kisii">Kisii</option>
+          <option value="Kiambu">Kiambu</option>
+          <option value="Kilifi">Kilifi</option>
+        </select>
+        <select id="specialtyFilter">
+          <option value="All">All Specialties</option>
+          <option value="Emergency">Emergency</option>
+          <option value="Maternity">Maternity</option>
+          <option value="Pediatrics">Pediatrics</option>
+          <option value="Surgery">Surgery</option>
+          <option value="General">General</option>
+          <option value="Oncology">Oncology</option>
+          <option value="Cardiology">Cardiology</option>
+        </select>
+      </div>
+      <div class="filters-row">
+        <label><input type="checkbox" id="nhifFilter"> ✅ NHIF Only</label>
+        <label><input type="checkbox" id="open24Filter"> 🟢 Open 24hrs Only</label>
+      </div>
     </div>
     <p id="status">Search any town in Kenya or click Use My Location.</p>
     <div id="results"></div>
+    <footer>Built by Chris Enterprises • hospital.chrisenterprises.co.ke • Emergency? Call 911 / 999</footer>
   </main>
   <script src="app.js"></script>
 </body>
