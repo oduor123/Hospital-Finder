@@ -72,16 +72,19 @@ function renderHospitals() {
     container.innerHTML = "<p>No hospital found. Try another town or clear filters.</p>";
     return;
   }
-
-  container.innerHTML = `<p><b>${filtered.length} hospitals found nationwide</b> ${specialty !== 'All' ? `• Specialty: ${specialty}` : ''}</p>` + filtered.map((h, i) => `
+container.innerHTML = `<p><b>${filtered.length} hospitals found</b></p>` + filtered.map((h, i) => `
     <div class="card ${i===0?'best':''}">
-      <h3>${i===0?'⭐ RECOMMENDED - ':''}${h.name}</h3>
+      <h3>${i===0?'⭐ RECOMMENDED • ':''}${h.name}</h3>
       <p>📍 ${h.town}, ${h.county} County • ${h.distance.toFixed(1)} km from you • ⭐ ${h.rating}/5</p>
       <p>${h.specialties.map(s=>`<span class="badge">${s}</span>`).join('')}</p>
-      <p>${h.is24hr?'🟢 Open 24hrs':'🔴 Not 24hrs'} • ${h.acceptsNHIF?'✅ NHIF':'❌ No NHIF'}</p>
-      <p><a href="tel:${h.phone}">📞 Call ${h.phone}</a> &nbsp;|&nbsp; <a href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank">🧭 Get Directions</a></p>
+      <p>${h.is24hr?'🟢 Open 24hrs':'🔴 Not 24hrs'} &nbsp;•&nbsp; ${h.acceptsNHIF?'✅ NHIF Accepted':'❌ No NHIF'}</p>
+      <div class="actions">
+        <a class="btn-call" href="tel:${h.phone}">📞 Call ${h.phone}</a>
+        <a class="btn-dir" href="https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}" target="_blank">🧭 Get Directions</a>
+      </div>
     </div>
   `).join('');
+  
 }
 
 document.getElementById('locateBtn').addEventListener('click', () => {
@@ -98,4 +101,8 @@ document.getElementById('locateBtn').addEventListener('click', () => {
   document.getElementById(id).addEventListener('input', renderHospitals);
   document.getElementById(id).addEventListener('change', renderHospitals);
 });
+function quickSearch(text) {
+  document.getElementById('searchInput').value = text;
+  renderHospitals();
+}
 loadHospitals();
